@@ -25,7 +25,7 @@ public class Deck {
                 if(times < 1) {
                     card = "Wild";
                     allCards.Push(card);
-                    card = "Draw4";
+                    card = "Wild_Draw4";
                     allCards.Push(card);
                 }
             }
