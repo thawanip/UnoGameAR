@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
+using System;
+
 public class GamePlay : MonoBehaviour
 {
     private bool _usersTurnFlag = true;
@@ -33,6 +35,8 @@ public class GamePlay : MonoBehaviour
 
     }
 
-    
-    
+    internal bool CanUseSelectedCard(string name1, string name2)
+    {
+        throw new NotImplementedException();
+    }
 }

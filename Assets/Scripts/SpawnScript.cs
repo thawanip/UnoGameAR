@@ -15,7 +15,7 @@ public class SpawnScript : MonoBehaviour
 
     private GameObject[] cards = new GameObject[7];
     private Vector3 pos = new Vector3(0, 0, 0.3f);
-    private Vector3 currentCardPos = new Vector3(-0.1f, -0.5f, 0.6f);
+    private Vector3 currentCardPos = new Vector3(-0.1f, -0.3f, 0.5f);
     // Start is called before the first frame update
     void Start()
     {
@@ -34,7 +34,7 @@ public class SpawnScript : MonoBehaviour
             
             if(gObj != null)
             {
-                Instantiate(gObj, pos[c], Quaternion.Euler(new Vector3((float)90,(float)180,(float)0)));
+                Instantiate(gObj, pos[c], Quaternion.Euler(new Vector3(90f, 180f, 0f)));
                 CurrentCards.AddToUserCards(gObj);
             }
                             
@@ -77,29 +77,31 @@ public class SpawnScript : MonoBehaviour
                         Debug.Log(hit.transform.name+"hit");
                         if(!hit.transform.name.Contains("Deck"))
                         {
-                            Debug.Log(hit.transform.name+" name");
-                            //Transform currCardPos = GameObject.Find(CurrentCards.currentCard.name).transform;
-                            Transform currCardPos = GameObject.FindWithTag("cc").transform;
-                            if(currCardPos != null)
+                            if(gPlay.CanUseSelectedCard(hit.transform.name, CurrentCards.currentCard.name))
                             {
-                                Debug.Log(hit.transform.position.ToString() + " before destroy");
-                                Destroy(GameObject.FindWithTag("cc"));
-
-                                //Destroy(hit.transform.gameObject);
-                                GameObject smokePrefab = Resources.Load<GameObject>("Smoke/Smoke");
-                                if (smokePrefab != null)
+                                Debug.Log(hit.transform.name + " name");
+                                //Transform currCardPos = GameObject.Find(CurrentCards.currentCard.name).transform;
+                                Transform currCardPos = GameObject.FindWithTag("cc").transform;
+                                if (currCardPos != null)
                                 {
-                                    Instantiate(smokePrefab, currCardPos.position, Quaternion.LookRotation(hit.normal));
-                                    hit.transform.gameObject.transform.DOJump(currCardPos.position,
-                                    jumpPower: 1,
-                                    numJumps: 1,
-                                    duration: 2f).SetEase(Ease.InOutBounce);
-                                    CurrentCards.currentCard = hit.transform.gameObject;
-                                    CurrentCards.currentCard.tag = "cc";
+                                    Debug.Log(hit.transform.position.ToString() + " before destroy");
+                                    Destroy(GameObject.FindWithTag("cc"));
+
+                                    //Destroy(hit.transform.gameObject);
+                                    GameObject smokePrefab = Resources.Load<GameObject>("Smoke/Smoke");
+                                    if (smokePrefab != null)
+                                    {
+                                        Instantiate(smokePrefab, currCardPos.position, Quaternion.LookRotation(hit.normal));
+                                        hit.transform.gameObject.transform.DOJump(currCardPos.position,
+                                        jumpPower: 1,
+                                        numJumps: 1,
+                                        duration: 2f).SetEase(Ease.InOutBounce);
+                                        CurrentCards.currentCard = hit.transform.gameObject;
+                                        CurrentCards.currentCard.tag = "cc";
+
+                                    }
                                 }
-                            }
-                            
-                            
+                            }                          
 
                         }
                     }
