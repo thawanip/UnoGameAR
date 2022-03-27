@@ -25,7 +25,7 @@ public class Deck {
                 if(times < 1) {
                     card = "Wild";
                     allCards.Push(card);
-                    card = "Draw4";
+                    card = "Wild_Draw4";
                     allCards.Push(card);
                 }
             }
@@ -52,7 +52,7 @@ public class Deck {
         }
         return cards;
     }
-    // static void Main(string[] args) {
+    // public static void Main(string[] args) {
     //     Deck deck = new Deck();
     //     deck.CreateDeck();
     //     //deck.PrintDeck();
