@@ -5,11 +5,11 @@ using UnityEngine;
 public class CurrentCards : MonoBehaviour
 {
     // Start is called before the first frame update
-    private static List<string> usercards = new List<string>();
+    private static List<GameObject> usercards = new List<GameObject>();
     private static List<string> player2Cards = new List<string>();
     //private static string currentCard = "";
-    public static string currentCard {get; set;}
-    public static List<string> GetUserCards()
+    public static GameObject currentCard {get; set;}
+    public static List<GameObject> GetUserCards()
     {
         return usercards;
     }
@@ -17,12 +17,11 @@ public class CurrentCards : MonoBehaviour
     {
         return player2Cards;
     }
-    public static void AddToUserCards(string[] cards)
+    public static void AddToUserCards(GameObject card)
     {
-        foreach(string s in cards)
-             usercards.Add(s);
+        usercards.Add(card);
     }
-    public static void RemoveFromUserCards(string card)
+    public static void RemoveFromUserCards(GameObject card)
     {
         usercards.Remove(card);
     }

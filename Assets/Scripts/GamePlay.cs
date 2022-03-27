@@ -23,7 +23,8 @@ public class GamePlay : MonoBehaviour
 
     private void Player2Turn()
     {
-        if(CurrentCards.currentCard.Contains("Reverse"))
+        if(CurrentCards.currentCard.name.Contains("Reverse") || 
+                CurrentCards.currentCard.name.Contains("Skip"))
             UsersTurn();
         //if()
     }

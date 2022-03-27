@@ -1,20 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using DG.Tweening;
 public class SpawnScript : MonoBehaviour
 {
     public Transform player2;
     public GameObject player2deck;
     public Transform CenterDeck;
     public GameObject deck;
-    public float tapSpeed = 1f; //in seconds
- 
+    private float tapSpeed = 0.5f; //in seconds
     private float lastTapTime = 0;
+    private GamePlay gPlay;
+    
 
     private GameObject[] cards = new GameObject[7];
-    private Vector3 pos = new Vector3(0, 0, (float)0.3);
-    private Vector3 currentCardPos = new Vector3((float)-0.1, (float)-0.5, (float)0.6);
+    private Vector3 pos = new Vector3(0, 0, 0.3f);
+    private Vector3 currentCardPos = new Vector3(-0.1f, -0.5f, 0.6f);
     // Start is called before the first frame update
     void Start()
     {
@@ -30,21 +31,31 @@ public class SpawnScript : MonoBehaviour
         for(int c = 0; c<cards.Length; c++)
         {
             GameObject gObj = Resources.Load<GameObject>("Cards/"+player1cards[c]);
-            //gObj.GetComponents<MeshCollider>()
+            
             if(gObj != null)
-                Instantiate(gObj, pos[c], Quaternion.Euler(new Vector3((float)90,(float)180,(float)0)));            
-        }
-        CurrentCards.AddToUserCards(player1cards);
+            {
+                Instantiate(gObj, pos[c], Quaternion.Euler(new Vector3((float)90,(float)180,(float)0)));
+                CurrentCards.AddToUserCards(gObj);
+            }
+                            
+        }        
 
         CurrentCards.AddToPlayer2Cards(uno.GetNumberOfCards(7, uno.allCards));
+        
+        //TO-DO : cant have rev/skip/draw2/4/wild/ cards
         //Instantiate current card
         GameObject g = Resources.Load<GameObject>("Cards/"+uno.GetNumberOfCards(1, uno.allCards)[0]);
+        g.name += "(Clone)";
+        g.tag = "cc";
         Instantiate(g, currentCardPos, Quaternion.LookRotation(Vector3.down));
+        CurrentCards.currentCard = g;
         
         
         //Instantiating common deck and Player2 decks
         Instantiate(deck, CenterDeck.position, Quaternion.LookRotation(Vector3.down));
         Instantiate(player2deck, player2.position, Quaternion.LookRotation(Vector3.down));
+
+        gPlay = new GamePlay();
     }
 
     // Update is called once per frame
@@ -59,15 +70,37 @@ public class SpawnScript : MonoBehaviour
                 if((Time.time - lastTapTime) < tapSpeed)
                 {
                     // Construct a ray from the current touch coordinates
-                    Debug.Log("double tap!");
+                    Debug.Log("double tap!"+gPlay.UsersTurnFlag.ToString());
                     Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(i).position);
-                    if(Physics.Raycast(ray, out hit))
+                    if(Physics.Raycast(ray, out hit) && gPlay.UsersTurnFlag) // check if it is user's turn
                     {
                         Debug.Log(hit.transform.name+"hit");
                         if(!hit.transform.name.Contains("Deck"))
                         {
-                            Destroy(hit.transform.gameObject);
-                            //Instantiate(smoke, hit.transform.position, Quaternion.LookRotation(hit.normal));
+                            Debug.Log(hit.transform.name+" name");
+                            //Transform currCardPos = GameObject.Find(CurrentCards.currentCard.name).transform;
+                            Transform currCardPos = GameObject.FindWithTag("cc").transform;
+                            if(currCardPos != null)
+                            {
+                                Debug.Log(hit.transform.position.ToString() + " before destroy");
+                                Destroy(GameObject.FindWithTag("cc"));
+
+                                //Destroy(hit.transform.gameObject);
+                                GameObject smokePrefab = Resources.Load<GameObject>("Smoke/Smoke");
+                                if (smokePrefab != null)
+                                {
+                                    Instantiate(smokePrefab, currCardPos.position, Quaternion.LookRotation(hit.normal));
+                                    hit.transform.gameObject.transform.DOJump(currCardPos.position,
+                                    jumpPower: 1,
+                                    numJumps: 1,
+                                    duration: 2f).SetEase(Ease.InOutBounce);
+                                    CurrentCards.currentCard = hit.transform.gameObject;
+                                    CurrentCards.currentCard.tag = "cc";
+                                }
+                            }
+                            
+                            
+
                         }
                     }
                 }
