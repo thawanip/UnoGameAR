@@ -5,9 +5,20 @@ using UnityEngine;
 public class CurrentCards : MonoBehaviour
 {
     // Start is called before the first frame update
-    private static List<GameObject> usercards = new List<GameObject>();
-    private static List<string> player2Cards = new List<string>();
+    public static List<GameObject> usercards = new List<GameObject>();
+    public static  List<string> player2Cards = new List<string>();
+    public static Vector3 ccPos;
+ 
     //private static string currentCard = "";
+    void Start()
+    {
+        //usercards = new List<GameObject>();
+        //player2Cards 
+    }
+    void Update()
+    {
+       
+    }
     public static GameObject currentCard {get; set;}
     public static List<GameObject> GetUserCards()
     {
