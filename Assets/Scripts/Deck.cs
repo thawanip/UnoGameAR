@@ -52,7 +52,12 @@ public class Deck {
         }
         return cards;
     }
-    // public static void Main(string[] args) {
+    public void PutCardBackInDeck(string card)
+    {
+        allCards.Push(card);
+        allCards = Shuffle(allCards);
+    }
+    // static void Main(string[] args) {
     //     Deck deck = new Deck();
     //     deck.CreateDeck();
     //     //deck.PrintDeck();

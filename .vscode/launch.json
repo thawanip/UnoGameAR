@@ -1,0 +1,25 @@
+{
+    
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Unity Editor",
+            "type": "unity",
+            "request": "launch",
+            "processId": "C:/Users/prash/Desktop/ASE/UnoGame/UnoGame/Library/EditorInstance.json"
+        },
+        {
+            "name": "Windows Player",
+            "type": "unity",
+            "request": "launch"
+        },
+        {
+            "name": "Android Player",
+            "type": "unity",
+            "request": "launch"
+        }
+    ]
+    
+    
+}
