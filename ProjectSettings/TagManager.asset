@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - cc
+  - userCard
   layers:
   - Default
   - TransparentFX

@@ -35,10 +35,11 @@ public class SpawnScript : MonoBehaviour
        // gPlay = new GamePlay();
         uno = new Deck();
         uno.CreateDeck();
+        CurrentCards.sScript = this;
 
         //Instantiating user cards
         uno.allCards = uno.Shuffle(uno.allCards);
-        Vector3[] pos = getPositions(7);
+        Vector3[] pos = GamePlay.getPositions(7);
         string[] player1cards = uno.GetNumberOfCards(7, uno.allCards);
         for(int c = 0; c<cards.Length; c++)
         {
@@ -46,6 +47,7 @@ public class SpawnScript : MonoBehaviour
             
             if(gObj != null)
             {
+                gObj.tag = "userCard";
                 Instantiate(gObj, pos[c], Quaternion.Euler(new Vector3(90f, 180f, 0f)));
                 CurrentCards.AddToUserCards(gObj);
                 usercards.Add(gObj);
@@ -55,11 +57,14 @@ public class SpawnScript : MonoBehaviour
         string[] p2 = (uno.GetNumberOfCards(7, uno.allCards));
         foreach (string c in p2)
             player2Cards.Add(c);
-        CurrentCards.AddToPlayer2Cards(uno.GetNumberOfCards(7, uno.allCards));
-        
+        CurrentCards.AddToPlayer2Cards(p2);
+
         //TO-DO : cant have rev/skip/draw2/4/wild/ cards
         //Instantiate current card
-        GameObject g = Resources.Load<GameObject>("Cards/"+uno.GetNumberOfCards(1, uno.allCards)[0]);
+        //string cardInPlay = uno.GetNumberOfCards(1, uno.allCards)[0];
+        string cardInPlay = GamePlay.GetRandomStartCard();
+        
+        GameObject g = Resources.Load<GameObject>("Cards/"+cardInPlay);
         g.name += "(Clone)";
         g.tag = "cc";
         Instantiate(g, currentCardPos, Quaternion.Euler(new Vector3(90f, 180f, 0f)));
@@ -79,6 +84,7 @@ public class SpawnScript : MonoBehaviour
     void Update()
     {
         RaycastHit hit;
+        CurrentCards.sScript = this;
         for (var i = 0; i < Input.touchCount; ++i) 
         //if(Input.touchCount == 1)
         {
@@ -87,9 +93,9 @@ public class SpawnScript : MonoBehaviour
                 if((Time.time - lastTapTime) < tapSpeed)
                 {
                     // Construct a ray from the current touch coordinates
-                    Debug.Log("double tap!");
+                    //Debug.Log("double tap!");
                    
-                    Debug.Log("double tap!"+GamePlay.UsersTurnFlag.ToString());
+                    //Debug.Log("double tap!"+GamePlay.UsersTurnFlag.ToString());
                     Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(i).position);
                     if(Physics.Raycast(ray, out hit) && GamePlay.UsersTurnFlag) // check if it is user's turn
                     {
@@ -105,16 +111,14 @@ public class SpawnScript : MonoBehaviour
 
                             if (GamePlay.CanUseSelectedCard(sCard.name, GameObject.FindWithTag("cc").gameObject.name))
                             {
-                                Debug.Log(sCard.name + " name");
-                                //Transform currCardPos = GameObject.Find(CurrentCards.currentCard.name).transform;
+                                //Debug.Log(sCard.name + " name");
+                                
                                 Vector3 currCardPos = GameObject.FindWithTag("cc").transform.position;
                                 if (currCardPos != null)
                                 {
-                                    Debug.Log(hit.transform.position.ToString() + " before destroy");
+                                    //Debug.Log(hit.transform.position.ToString() + " before destroy");
                                     GamePlay.DestroyCC();
-                                    //DestroyImmediate(GameObject.FindWithTag("cc"));
-
-                                    //Destroy(hit.transform.gameObject);
+                                    
                                     GameObject smokePrefab = Resources.Load<GameObject>("Smoke/Smoke");
                                     if (smokePrefab != null)
                                     {
@@ -122,18 +126,16 @@ public class SpawnScript : MonoBehaviour
                                         sCard.transform.DOJump(currCardPos,
                                         jumpPower: 0.5f,
                                         numJumps: 1,
-                                        duration: 2f).SetEase(Ease.InElastic);
+                                        duration: 2f).SetEase(Ease.InBounce);
                                         sCard.tag = "cc";
                                         cCard = sCard;
                                         CurrentCards.currentCard = sCard.gameObject;
 
-                                        //CurrentCards.currentCard.tag = "cc";
+                                        //updating list of user cards
+                                        CurrentCards.usercards.Remove(sCard);
 
-                                        //userPlayedCard = true;
-                                        // Invoke("Call", 0f);
-                                        StartCoroutine(Call());
                                         
-                                        
+                                        StartCoroutine(Call());                                        
                                     }
                                 }
                             }                          
@@ -148,21 +150,93 @@ public class SpawnScript : MonoBehaviour
         }
     }
 
+    
+    public void PickCardsForUser(int numOfNewCards)
+    {
+        //if(GamePlay.UsersTurnFlag)
+        {
+            GameObject[] uCards = GameObject.FindGameObjectsWithTag("userCard");
+            List<string> newCardNames = new List<string>();
+            Vector3[] positions;
+            
+            List<string> uCardNames = new List<string>();
+            
+
+            foreach(GameObject g in uCards)
+            {
+                uCardNames.Add(g.name.Split('(')[0]);                
+            }
+             
+            if(uCards.Length != 0)
+            {
+
+                for (int j = 0; j < numOfNewCards; j++)
+                    newCardNames.Add(uno.allCards.Pop());
+                //card = uno.allCards.Pop();
+                
+                //uCardNames.Concat(newCardNames);
+                newCardNames.ForEach(x => uCardNames.Add(x));
+
+                if(uCardNames.Count != 0)
+                {
+                    int numberOfCards = uCards.Length;
+
+                    foreach (GameObject obj in uCards)
+                        DestroyImmediate(obj);
+
+                    //GameObject newCard = Resources.Load<GameObject>("Cards/" + card);
+                    //newCard.tag = "userCard";
+                    positions = GamePlay.getPositions(uCardNames.Count );
+                    CurrentCards.usercards.Clear();
+                    for(int i = 0; i < uCardNames.Count; i++)
+                    {
+                        GameObject gCard = Resources.Load<GameObject>("Cards/" + uCardNames[i]);
+                        if (gCard != null)
+                        {
+                            gCard.tag = "userCard";
+                            Instantiate(gCard, positions[i], Quaternion.Euler(new Vector3(90f, 180f, 0f)));
+
+                            CurrentCards.usercards.Add(gCard);
+                        }
+                    }
+
+                    
+                    GamePlay.UsersTurnFlag = false;
+                    StartCoroutine(CallWithoutAction());
+                    
+                    GamePlay._ShowAndroidToastMessage("You have "+ numOfNewCards+" new card(s)!");
+                }                
+            }
+        }
+    }
    private IEnumerator Call()
     {
         yield return new WaitForSeconds(3);
-        IsActionNeeded( uno);
+        IsActionNeeded(uno);
+        GamePlay.Player2Turn(uno);
+    }
+    private IEnumerator CallWithoutAction()
+    {
+        yield return new WaitForSeconds(3);
+        //IsActionNeeded(uno);
         GamePlay.Player2Turn(uno);
     }
     private void IsActionNeeded( Deck d)
     {
-        if (!CurrentCards.currentCard.name.Any(a => char.IsDigit(a)))
+        GameObject gObj = GameObject.FindGameObjectWithTag("cc");
+        if (GamePlay.SpecialCardCheck(gObj.name))
         {
-            if (CurrentCards.currentCard.name.Contains("Wild"))
-                GamePlay.WildThrownByUser(CurrentCards.currentCard.name, d);
-            else if (CurrentCards.currentCard.name.Contains("Skip")
-                    || CurrentCards.currentCard.name.Contains("Reverse"))
+            if (gObj.name.Contains("Wild"))
+                GamePlay.WildThrownByUser(gObj.name, d);
+            else if (gObj.name.Contains("Skip")
+                    || gObj.name.Contains("Reverse"))
                 GamePlay.UsersTurnFlag = true;
+            else if (gObj.name.Contains("Draw2"))
+            {
+                GamePlay.AddXCardsToPlayer2(2, d);
+                GamePlay._ShowAndroidToastMessage("2 cards to  player 2");
+                GamePlay.UsersTurnFlag = false;
+            }
         }
         else
         {
@@ -175,16 +249,5 @@ public class SpawnScript : MonoBehaviour
         //yield return new WaitForSeconds(4);
     }
 
-    Vector3[] getPositions(int numberOfCards)
-    {
-        Vector3[] positions = new Vector3[numberOfCards];
-        Vector3 refPos = new Vector3((float)-0.1, 0, (float)0.4);
-        for(int i = 0; i < numberOfCards; i++)
-        {
-            positions[i].y = refPos.y;
-            positions[i].x = refPos.x + (float)(i*(0.04));
-            positions[i].z = refPos.z + (float)(i*(0.01));
-        }
-        return positions;
-    }
+    
 }

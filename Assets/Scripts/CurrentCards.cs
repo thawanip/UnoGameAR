@@ -8,6 +8,7 @@ public class CurrentCards : MonoBehaviour
     public static List<GameObject> usercards = new List<GameObject>();
     public static  List<string> player2Cards = new List<string>();
     public static Vector3 ccPos;
+    public static SpawnScript sScript = new SpawnScript();
  
     //private static string currentCard = "";
     void Start()
