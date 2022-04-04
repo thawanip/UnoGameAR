@@ -134,6 +134,7 @@ public class SpawnScript : MonoBehaviour
                                         //updating list of user cards
                                         CurrentCards.usercards.Remove(sCard);
 
+                                        GamePlay.CheckIfUserWon();
                                         
                                         StartCoroutine(Call());                                        
                                     }

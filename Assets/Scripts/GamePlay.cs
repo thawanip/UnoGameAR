@@ -93,6 +93,8 @@ public class GamePlay : MonoBehaviour
             _ShowAndroidToastMessage("Your turn!");
             //UsersTurnFlag = true;
             CurrentCards.player2Cards.Remove(card);
+
+            CheckIfPlayer2Won();
             _ShowAndroidToastMessage("Player2 picked: " + selectedCard.name);
 
             if (SpecialCardCheck(selectedCard.name))
@@ -132,6 +134,13 @@ public class GamePlay : MonoBehaviour
                 UsersTurnFlag = true;
         }        
     }
+
+    private static void CheckIfPlayer2Won()
+    {
+        if (CurrentCards.player2Cards.Count == 0)
+            _ShowAndroidToastMessage("Player 2 WON!");
+    }
+
     private IEnumerator Player2TurnWithoutAction()
     {
         yield return new WaitForSeconds(3);
@@ -188,6 +197,12 @@ public class GamePlay : MonoBehaviour
         if (possiblePlayableCards.Count == 0)
             return string.Empty;
         return possiblePlayableCards[r.Next(possiblePlayableCards.Count)];
+    }
+
+    internal static void CheckIfUserWon()
+    {
+        if (CurrentCards.usercards.Count == 0)
+            _ShowAndroidToastMessage("You WON!!!");
     }
 
     internal static bool CanUseSelectedCard(string selected, string cc)
