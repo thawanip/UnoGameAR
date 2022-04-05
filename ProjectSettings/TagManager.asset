@@ -6,6 +6,8 @@ TagManager:
   tags:
   - cc
   - userCard
+  - p2won
+  - userwon
   layers:
   - Default
   - TransparentFX

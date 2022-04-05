@@ -24,8 +24,8 @@ public class SpawnScript : MonoBehaviour
     }
     private GameObject[] cards = new GameObject[7];
     private Vector3 pos = new Vector3(0, 0, 0.3f);
-    //private Vector3 currentCardPos = new Vector3(-0.1f, -0.3f, 0.5f);
-    private Vector3 currentCardPos = new Vector3(-0.2f, 0f, 0.5f);
+    private Vector3 currentCardPos = new Vector3(-0.1f, -0.3f, 0.5f);
+    //private Vector3 currentCardPos = new Vector3(-0.2f, 0f, 0.5f);
     public static Deck uno;
     private bool userPlayedCard = false;
     // Start is called before the first frame update
@@ -132,7 +132,7 @@ public class SpawnScript : MonoBehaviour
                                         CurrentCards.currentCard = sCard.gameObject;
 
                                         //updating list of user cards
-                                        CurrentCards.usercards.Remove(sCard);
+                                        CurrentCards.usercards.Remove(CurrentCards.usercards.First(x => x.name == sCard.name.Split('(')[0]));
 
                                         GamePlay.CheckIfUserWon();
                                         
@@ -231,7 +231,11 @@ public class SpawnScript : MonoBehaviour
                 GamePlay.WildThrownByUser(gObj.name, d);
             else if (gObj.name.Contains("Skip")
                     || gObj.name.Contains("Reverse"))
+            {
                 GamePlay.UsersTurnFlag = true;
+                GamePlay._ShowAndroidToastMessage("Your turn again!");
+            }
+                
             else if (gObj.name.Contains("Draw2"))
             {
                 GamePlay.AddXCardsToPlayer2(2, d);
