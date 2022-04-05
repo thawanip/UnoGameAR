@@ -4,10 +4,13 @@ using UnityEngine;
 using System.Threading;
 using System;
 using System.Linq;
+using DG.Tweening;
+using UnityEngine.SceneManagement;
 
 public class GamePlay : MonoBehaviour
 {
     private static bool _usersTurnFlag = true;
+    public GameObject PopPanel;
     public string WildCardColour { get; set; }
     public static bool UsersTurnFlag 
     {
@@ -88,14 +91,21 @@ public class GamePlay : MonoBehaviour
             DestroyCC();
             
             selectedCard.tag = "cc";
+            Vector3 p = new Vector3(CurrentCards.ccPos.x, CurrentCards.ccPos.y, CurrentCards.ccPos.z);
+            p.y = 0.1f;
             Instantiate(selectedCard, CurrentCards.ccPos, Quaternion.Euler(new Vector3(90f, 180f, 0f)));
+            selectedCard.transform.DOPunchPosition(Vector3.down, 1f, 6, 0.6f, false);
+            //selectedCard.transform.DOJump(CurrentCards.ccPos,
+            //                            jumpPower: 0.5f,
+            //                            numJumps: 1,
+            //                            duration: 0.5f).SetEase(Ease.Linear);
 
-            _ShowAndroidToastMessage("Your turn!");
+            
             //UsersTurnFlag = true;
             CurrentCards.player2Cards.Remove(card);
-
+            _ShowAndroidToastMessage("Player 2 has " + CurrentCards.player2Cards.Count + " cards left!");
             CheckIfPlayer2Won();
-            _ShowAndroidToastMessage("Player2 picked: " + selectedCard.name);
+            _ShowAndroidToastMessage("Player2 played: " + selectedCard.name);
 
             if (SpecialCardCheck(selectedCard.name))
             {
@@ -117,6 +127,7 @@ public class GamePlay : MonoBehaviour
                 else if (selectedCard.name.Contains("Draw2"))
                 {
                     CurrentCards.sScript.PickCardsForUser(2);
+                    _ShowAndroidToastMessage("Your turn!");
                     UsersTurnFlag = true;
                 }
                 else if (selectedCard.name.Contains("Skip"))
@@ -131,14 +142,29 @@ public class GamePlay : MonoBehaviour
                 }
             }
             else
+            {
+                _ShowAndroidToastMessage("Your turn!");
                 UsersTurnFlag = true;
+            }
+                
         }        
     }
 
     private static void CheckIfPlayer2Won()
     {
         if (CurrentCards.player2Cards.Count == 0)
-            _ShowAndroidToastMessage("Player 2 WON!");
+        {
+            _ShowAndroidToastMessage("Player 2 has WON!!!");
+            Time.timeScale = 0;
+            SceneManager.UnloadSceneAsync(sceneBuildIndex: 1);
+            SceneManager.LoadScene(sceneBuildIndex: 3);
+            //GameObject p = GameObject.FindGameObjectWithTag("p2won");
+
+            //p.SetActive(true);
+           
+
+        }
+            
     }
 
     private IEnumerator Player2TurnWithoutAction()
@@ -202,7 +228,16 @@ public class GamePlay : MonoBehaviour
     internal static void CheckIfUserWon()
     {
         if (CurrentCards.usercards.Count == 0)
+        {
             _ShowAndroidToastMessage("You WON!!!");
+            Time.timeScale = 0;
+            SceneManager.UnloadSceneAsync(sceneBuildIndex: 1);
+            SceneManager.LoadScene(sceneBuildIndex: 2);
+            //GameObject p = GameObject.FindGameObjectWithTag("userwon"); ;
+            //p.SetActive(true);
+            
+        }
+            
     }
 
     internal static bool CanUseSelectedCard(string selected, string cc)
